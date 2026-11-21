@@ -3,10 +3,22 @@ const elements = {
   changePhoto: document.querySelector("#change-photo"),
   clock: document.querySelector("#clock"),
   date: document.querySelector("#today-date"),
+  dailyQuote: document.querySelector("#daily-quote-text"),
+  dailyQuoteAuthor: document.querySelector("#daily-quote-author"),
   emptyState: document.querySelector("#empty-state"),
   greeting: document.querySelector("#greeting"),
+  gallery: document.querySelector("#background-gallery"),
+  photoDialog: document.querySelector("#photo-dialog"),
   photoInput: document.querySelector("#photo-input"),
+  closePhotoDialog: document.querySelector("#close-photo-dialog"),
   resetPhoto: document.querySelector("#reset-photo"),
+  uploadPhoto: document.querySelector("#upload-photo"),
+  weatherButton: document.querySelector("#weather-button"),
+  weatherCityForm: document.querySelector("#weather-city-form"),
+  weatherCityInput: document.querySelector("#weather-city-input"),
+  weatherCitySubmit: document.querySelector("#weather-city-submit"),
+  weatherCityToggle: document.querySelector("#weather-city-toggle"),
+  weatherSummary: document.querySelector("#weather-summary"),
   taskCount: document.querySelector("#task-count"),
   taskError: document.querySelector("#task-error"),
   taskForm: document.querySelector("#task-form"),
@@ -18,6 +30,49 @@ const elements = {
 let tasks = [];
 let toastTimeout;
 let dragDepth = 0;
+let dailyWeather = "";
+
+const backgroundOptions = [
+  { name: "Wildflower field", path: "assets/default-background.jpg" },
+  { name: "Alpine lake", path: "assets/alpine-lake.jpg" },
+  { name: "Golden coast", path: "assets/golden-coast.jpg" },
+  { name: "Misty meadow", path: "assets/misty-meadow.jpg" },
+  { name: "Open ocean", path: "assets/ocean-blue.jpg" },
+  { name: "Forest light", path: "assets/forest-light.jpg" }
+];
+
+const dailyQuotes = [
+  { text: "Begin where you are, and let the next step be enough." },
+  { text: "Make room for the work that matters most." },
+  { text: "A steady pace can carry you a long way." },
+  { text: "Small acts of care shape an ordinary day." },
+  { text: "Adopt the pace of nature: her secret is patience.", author: "Ralph Waldo Emerson" },
+  { text: "You do not need to do everything to do something meaningful." },
+  { text: "Let curiosity lead you into the next hour." },
+  { text: "How wonderful it is that nobody need wait a single moment before starting to improve the world.", author: "Anne Frank" },
+  { text: "Forever is composed of nows.", author: "Emily Dickinson" },
+  { text: "The day is wide enough for a fresh beginning." },
+  { text: "Choose presence over hurry when you can." },
+  { text: "A little patience makes space for good work." },
+  { text: "Return to the task in front of you." },
+  { text: "There is value in showing up with care." },
+  { text: "Keep what is useful; release what is not." },
+  { text: "One clear choice can change the shape of a day." },
+  { text: "Let today be thoughtful, not perfect." },
+  { text: "Rest and focus are both part of moving forward." },
+  { text: "Nothing great was ever achieved without enthusiasm.", author: "Ralph Waldo Emerson" },
+  { text: "Start simply. Keep going gently." },
+  { text: "Make your next step a kind one." },
+  { text: "A pause can help you see the way ahead." },
+  { text: "Use your energy on what you value." },
+  { text: "Every finished thing began unfinished." },
+  { text: "Leave a little space for possibility." },
+  { text: "Take the time you need to do it well." },
+  { text: "Let intention set the tone for action." },
+  { text: "There is strength in beginning again." },
+  { text: "The happiness of your life depends upon the quality of your thoughts.", author: "Marcus Aurelius" },
+  { text: "Be here for the life inside this day." }
+];
 
 function getStoredValues(keys) {
   if (globalThis.chrome?.storage?.local) {
@@ -63,7 +118,7 @@ function updateClock() {
     hourCycle: "h23"
   }).format(now);
 
-  elements.greeting.textContent = greeting;
+  elements.greeting.textContent = dailyWeather ? `${greeting.slice(0, -1)}, ${dailyWeather}.` : greeting;
   elements.clock.textContent = time;
   elements.clock.setAttribute("aria-label", `Current local time: ${time}`);
   elements.date.textContent = new Intl.DateTimeFormat(undefined, {
@@ -71,6 +126,145 @@ function updateClock() {
     month: "long",
     day: "numeric"
   }).format(now);
+}
+
+function renderDailyQuote() {
+  const today = new Date();
+  const localDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+  const dayNumber = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86_400_000);
+  const quoteIndex = ((dayNumber % dailyQuotes.length) + dailyQuotes.length) % dailyQuotes.length;
+  const quote = dailyQuotes[quoteIndex];
+  elements.dailyQuote.textContent = quote.text;
+  elements.dailyQuoteAuthor.textContent = quote.author || "A thought for today";
+  elements.dailyQuote.dataset.date = localDate;
+}
+
+function renderBackgroundGallery() {
+  elements.gallery.replaceChildren();
+  for (const option of backgroundOptions) {
+    const button = document.createElement("button");
+    button.className = "background-option";
+    button.type = "button";
+    button.setAttribute("aria-label", `Use ${option.name} background`);
+    button.style.backgroundImage = `url("${option.path}")`;
+
+    const name = document.createElement("span");
+    name.textContent = option.name;
+    button.append(name);
+    button.addEventListener("click", async () => {
+      try {
+        await setStoredValues({ customBackground: option.path });
+        applyBackground(option.path);
+        elements.photoDialog.close();
+        showToast(`${option.name} is now your background.`);
+      } catch {
+        showToast("Your background could not be saved.");
+      }
+    });
+    elements.gallery.append(button);
+  }
+}
+
+function weatherDescription(code, precipitation) {
+  if (code === 0) return "clear skies";
+  if (code === 1) return "mostly clear skies";
+  if (code === 2) return "partly cloudy skies";
+  if (code === 3) return "cloudy skies";
+  if (code === 45 || code === 48) return "fog";
+  if ([51, 53, 55, 56, 57].includes(code)) return "drizzle";
+  if ([61, 66].includes(code)) return precipitation > 5 ? "moderate rain" : "light rain";
+  if ([63, 67].includes(code)) return "rain";
+  if (code === 65) return "heavy rain";
+  if ([71, 73, 77, 85].includes(code)) return "snow";
+  if (code === 75 || code === 86) return "heavy snow";
+  if ([80, 81].includes(code)) return "rain showers";
+  if (code === 82) return "heavy rain showers";
+  if ([95, 96, 99].includes(code)) return "thunderstorms";
+  return "a changing forecast";
+}
+
+function requestPosition() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: false,
+      timeout: 12000,
+      maximumAge: 30 * 60 * 1000
+    });
+  });
+}
+
+async function fetchForecast(latitude, longitude) {
+  const params = new URLSearchParams({
+    latitude: String(latitude),
+    longitude: String(longitude),
+    daily: "weather_code,precipitation_sum",
+    forecast_days: "1",
+    timezone: "auto"
+  });
+  const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
+  if (!response.ok) throw new Error("Forecast unavailable");
+  const forecast = await response.json();
+  return weatherDescription(forecast.daily.weather_code[0], forecast.daily.precipitation_sum[0]);
+}
+
+function showForecast(description, place, locationButtonText) {
+  dailyWeather = `expecting ${description} today`;
+  elements.weatherSummary.textContent = `Forecast for ${place} updated`;
+  elements.weatherButton.textContent = locationButtonText;
+  updateClock();
+}
+
+async function updateWeather() {
+  elements.weatherButton.disabled = true;
+  elements.weatherButton.textContent = "Checking...";
+  elements.weatherSummary.textContent = "Getting your local forecast";
+  try {
+    const position = await requestPosition();
+    const description = await fetchForecast(position.coords.latitude, position.coords.longitude);
+    showForecast(description, "your area", "Refresh nearby");
+  } catch (error) {
+    dailyWeather = "";
+    updateClock();
+    elements.weatherSummary.textContent = error.code === 1
+      ? "Location access is off. Allow it to see your forecast."
+      : "Could not get the forecast. Check location and connection.";
+    elements.weatherButton.textContent = "Try again";
+  } finally {
+    elements.weatherButton.disabled = false;
+  }
+}
+
+async function updateWeatherForCity(event) {
+  event.preventDefault();
+  const city = elements.weatherCityInput.value.trim();
+  if (!city) {
+    elements.weatherCityInput.focus();
+    return;
+  }
+
+  elements.weatherCitySubmit.disabled = true;
+  elements.weatherCitySubmit.textContent = "...";
+  elements.weatherSummary.textContent = `Searching for ${city}`;
+  try {
+    const params = new URLSearchParams({ name: city, count: "1", language: "en", format: "json" });
+    const response = await fetch(`https://api.open-meteo.com/v1/search?${params}`);
+    if (!response.ok) throw new Error("City search unavailable");
+    const results = await response.json();
+    const location = results.results?.[0];
+    if (!location) throw new Error("City not found");
+
+    const description = await fetchForecast(location.latitude, location.longitude);
+    showForecast(description, location.name, "Use my location");
+    elements.weatherCityForm.hidden = true;
+    elements.weatherCityToggle.hidden = false;
+  } catch {
+    dailyWeather = "";
+    updateClock();
+    elements.weatherSummary.textContent = "Couldn't find that city or load its forecast.";
+  } finally {
+    elements.weatherCitySubmit.disabled = false;
+    elements.weatherCitySubmit.textContent = "Find";
+  }
 }
 
 function showToast(message) {
@@ -85,7 +279,7 @@ function showToast(message) {
 function renderTasks() {
   elements.taskList.replaceChildren();
   const openCount = tasks.filter((task) => !task.completed).length;
-  elements.taskCount.textContent = `${openCount} ${openCount === 1 ? "open" : "open"}`;
+  elements.taskCount.textContent = `${openCount} open`;
   elements.emptyState.hidden = tasks.length > 0;
 
   for (const task of tasks) {
@@ -200,7 +394,22 @@ elements.taskInput.addEventListener("input", () => {
   elements.taskError.textContent = "";
 });
 
-elements.changePhoto.addEventListener("click", () => elements.photoInput.click());
+elements.changePhoto.addEventListener("click", () => elements.photoDialog.showModal());
+elements.closePhotoDialog.addEventListener("click", () => elements.photoDialog.close());
+elements.photoDialog.addEventListener("click", (event) => {
+  if (event.target === elements.photoDialog) elements.photoDialog.close();
+});
+elements.uploadPhoto.addEventListener("click", () => {
+  elements.photoDialog.close();
+  elements.photoInput.click();
+});
+elements.weatherButton.addEventListener("click", updateWeather);
+elements.weatherCityToggle.addEventListener("click", () => {
+  elements.weatherCityForm.hidden = false;
+  elements.weatherCityToggle.hidden = true;
+  elements.weatherCityInput.focus();
+});
+elements.weatherCityForm.addEventListener("submit", updateWeatherForCity);
 elements.photoInput.addEventListener("change", async () => {
   await setBackgroundFromFile(elements.photoInput.files?.[0]);
   elements.photoInput.value = "";
@@ -253,8 +462,12 @@ async function initialize() {
     const stored = await getStoredValues(["tasks", "customBackground"]);
     tasks = Array.isArray(stored.tasks) ? stored.tasks.filter((task) => task && typeof task.text === "string") : [];
     renderTasks();
-    if (typeof stored.customBackground === "string" && stored.customBackground.startsWith("data:image/")) {
+    if (typeof stored.customBackground === "string" && (stored.customBackground.startsWith("data:image/") || backgroundOptions.some((option) => option.path === stored.customBackground))) {
       applyBackground(stored.customBackground);
+    }
+    if (navigator.permissions?.query) {
+      const locationPermission = await navigator.permissions.query({ name: "geolocation" }).catch(() => null);
+      if (locationPermission?.state === "granted") updateWeather();
     }
   } catch {
     renderTasks();
@@ -262,4 +475,6 @@ async function initialize() {
   }
 }
 
+renderBackgroundGallery();
+renderDailyQuote();
 initialize();

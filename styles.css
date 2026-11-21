@@ -223,6 +223,83 @@ button {
   line-height: 1.18;
 }
 
+.weather-row {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 12px;
+  margin-top: 7px;
+}
+
+.weather-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.weather-button {
+  flex: none;
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(247, 244, 235, 0.45);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.weather-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.weather-button[hidden] {
+  display: none;
+}
+
+.weather-city-form {
+  display: flex;
+  width: min(100%, 310px);
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.weather-city-form[hidden] {
+  display: none;
+}
+
+.weather-city-form input {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  outline: 0;
+  background: rgba(15, 27, 25, 0.34);
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.weather-city-form input::placeholder {
+  color: var(--muted);
+}
+
+.weather-city-submit {
+  min-width: 54px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(15, 27, 25, 0.34);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.weather-city-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
 .clock {
   display: block;
   margin-left: -5px;
@@ -419,6 +496,29 @@ button {
   display: none;
 }
 
+.daily-quote {
+  margin: 20px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid rgba(247, 244, 235, 0.18);
+}
+
+.daily-quote p {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Baskerville", "Palatino Linotype", Georgia, serif;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.daily-quote cite {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  font-style: normal;
+}
+
 .footer-note {
   min-height: 58px;
   padding: 20px 5.1vw;
@@ -500,6 +600,99 @@ body.is-dragging .drop-prompt {
   transform: translateY(0);
 }
 
+.photo-dialog {
+  width: min(680px, calc(100% - 32px));
+  max-width: 680px;
+  max-height: min(85vh, 720px);
+  padding: 25px;
+  overflow: auto;
+  border: 1px solid rgba(247, 244, 235, 0.3);
+  border-radius: 6px;
+  background: #1b2c27;
+  color: var(--ink);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.4);
+}
+
+.photo-dialog::backdrop {
+  background: rgba(9, 17, 15, 0.72);
+  backdrop-filter: blur(5px);
+}
+
+.photo-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.photo-dialog-heading h2 {
+  margin: 4px 0 0;
+  font-family: "Iowan Old Style", "Baskerville", "Palatino Linotype", Georgia, serif;
+  font-size: 26px;
+  font-weight: 400;
+}
+
+.background-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.background-option {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  aspect-ratio: 1.45;
+  align-items: flex-end;
+  padding: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(247, 244, 235, 0.24);
+  border-radius: 3px;
+  background-color: #35453d;
+  background-position: center;
+  background-size: cover;
+  color: white;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.background-option::before {
+  position: absolute;
+  inset: 30% 0 0;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.68));
+  content: "";
+}
+
+.background-option span {
+  position: relative;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.background-option:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.upload-photo-button {
+  min-height: 40px;
+  margin-top: 18px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.upload-photo-button:hover {
+  background: rgba(247, 244, 235, 0.12);
+}
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -543,6 +736,11 @@ body.is-dragging .drop-prompt {
 
   .welcome h1 {
     font-size: 34px;
+  }
+
+  .weather-row {
+    flex-wrap: wrap;
+    gap: 4px 10px;
   }
 
   .clock {
@@ -597,6 +795,10 @@ body.is-dragging .drop-prompt {
     font-size: 30px;
   }
 
+  .weather-summary {
+    max-width: 100%;
+  }
+
   .clock {
     font-size: 82px;
   }
@@ -612,6 +814,15 @@ body.is-dragging .drop-prompt {
 
   .task-delete {
     opacity: 1;
+  }
+
+  .photo-dialog {
+    padding: 19px;
+  }
+
+  .background-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 }
 

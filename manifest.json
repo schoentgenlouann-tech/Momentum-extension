@@ -2,8 +2,9 @@
   "manifest_version": 3,
   "name": "Stillpoint - a calmer new tab",
   "version": "1.0.0",
-  "description": "A quiet new-tab space for your time, tasks, and favorite image.",
+  "description": "A quiet new-tab space for your time, tasks, favorite scenes, local weather, and daily inspiration.",
   "permissions": ["storage"],
+  "host_permissions": ["https://api.open-meteo.com/*"],
   "chrome_url_overrides": {
     "newtab": "newtab.html"
   }

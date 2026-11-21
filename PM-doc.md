@@ -1,7 +1,7 @@
 # Stillpoint: Product Spec
 
 **Date:** September 30, 2026  
-**Version:** V1  
+**Version:** V1.1
 **Platform:** Chrome extension (Manifest V3), replacing the New Tab page
 
 ## Product Idea
@@ -13,14 +13,14 @@ Momentum's product idea is to turn the browser's otherwise empty new-tab page in
 ## Candidate Features
 
 1. Live local time, date, and time-aware greeting.
-2. Custom background photo, set by dropping or selecting an image.
+2. Background library with curated scenes, custom upload, and drag-and-drop.
 3. Small task list with completion and persistent local storage.
-4. Daily quote or intention prompt.
-5. Quick links, weather, and a focus timer.
+4. Local weather forecast in the greeting area.
+5. A new inspirational quote each day below the task list.
 
 ## V1 Feature Decisions
 
-V1 includes features 1, 2, and 3. This keeps the first release useful without accounts, external services, or a large settings surface. The quote, links, weather, and timer are explicitly deferred.
+V1.1 includes features 1 through 5, while keeping the experience small and local-first. Weather is fetched from Open-Meteo after the user grants browser location access. Photos and quotes need no network connection; selected photos and tasks remain in local extension storage.
 
 ## Product Requirements and Acceptance Criteria
 
@@ -37,12 +37,13 @@ V1 includes features 1, 2, and 3. This keeps the first release useful without ac
 
 ### 2. Personal background image
 
-**Build:** Let the user set the dashboard background by dropping an image onto the page or choosing one from a file picker. Include a restrained built-in landscape background for first launch.
+**Build:** Let the user select a scene from a curated built-in photo library, upload an image, or drop one onto the page. Include a restrained default scene for first launch.
 
 **Acceptance criteria:**
 
-- A valid image file dropped anywhere on the dashboard becomes the background.
-- A keyboard-accessible file picker offers the same image selection behavior.
+- The photo library opens from the new-tab page and offers at least five built-in scenes with visible previews and names.
+- Selecting a library image changes the background and persists after reopening a tab.
+- A valid image file dropped anywhere on the dashboard or chosen from the upload control becomes the background.
 - The selected background remains after the tab is closed and reopened.
 - Invalid files do not replace the current background and produce a clear, temporary message.
 - A visible reset control restores the built-in background.
@@ -59,10 +60,32 @@ V1 includes features 1, 2, and 3. This keeps the first release useful without ac
 - The task list survives closing and reopening a new tab.
 - Empty or whitespace-only submissions do not create tasks.
 
+### 4. Local weather
+
+**Build:** After the user requests weather, ask for browser location access and show today's forecast in the greeting area using Open-Meteo. Do not store coordinates.
+
+**Acceptance criteria:**
+
+- Weather is requested only after the user selects the weather control.
+- With location permission and network access, the page displays a plain-language summary such as "Expecting light rain today."
+- On desktop, users can search for a city when browser location is denied or unavailable.
+- If location is denied, unavailable, or the forecast cannot be fetched, explain the state and allow retry without breaking the rest of the page.
+- Coordinates are used only for the forecast request and are not saved.
+
+### 5. Daily inspirational quote
+
+**Build:** Show an inspirational quote beneath the task list. Select it deterministically from a local collection using the user's local calendar date.
+
+**Acceptance criteria:**
+
+- A quote appears below the task list, including when there are no tasks.
+- The same quote appears for all tabs opened on the same local date, and the selection changes on the next date.
+- Quote selection works offline and does not require an account.
+
 ## Out of Scope for V1
 
 - Accounts, cloud sync, or collection of personal data.
-- Weather, quotes, soundscapes, focus timers, bookmarks, and third-party integrations.
+- Soundscapes, focus timers, bookmarks, and third-party integrations other than the weather forecast endpoint.
 - Automatically sourced daily photos or background rotation.
 - Mobile browsers or non-Chromium extension stores.
 
@@ -77,8 +100,10 @@ V1 includes features 1, 2, and 3. This keeps the first release useful without ac
 
 - Load the unpacked extension in Chrome and confirm it replaces the New Tab page.
 - Exercise the greeting and clock at multiple local times.
-- Set, reload, and reset a background image; reject a non-image file.
+- Select multiple library backgrounds, upload/drop and reload a custom image, reset the background, and reject a non-image file.
 - Add, complete, delete, and reload tasks; reject a blank task.
+- Request weather with location allowed and denied; confirm errors leave other features usable.
+- Confirm the quote is stable for a date and changes when the date changes.
 - Confirm the layout remains usable in a narrow browser window.
 
 ## Longer-Term Direction

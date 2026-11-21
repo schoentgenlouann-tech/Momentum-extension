@@ -24,7 +24,7 @@
             <path d="M4 7.5h3l1.4-2h7.2l1.4 2h3v11H4v-11Z" />
             <circle cx="12" cy="13" r="3.5" />
           </svg>
-          <span>Change photo</span>
+          <span>Choose a scene</span>
         </button>
         <button class="icon-button" id="reset-photo" type="button" aria-label="Reset background photo" title="Reset background photo">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
@@ -39,6 +39,16 @@
       <section class="welcome" aria-labelledby="greeting">
         <p class="eyebrow" id="today-date"></p>
         <h1 id="greeting">Good morning.</h1>
+        <div class="weather-row">
+          <p class="weather-summary" id="weather-summary" aria-live="polite">Weather is off</p>
+          <button class="weather-button" id="weather-button" type="button">Add local weather</button>
+          <button class="weather-button" id="weather-city-toggle" type="button">Use a city</button>
+        </div>
+        <form class="weather-city-form" id="weather-city-form" hidden>
+          <label class="visually-hidden" for="weather-city-input">City for local weather</label>
+          <input id="weather-city-input" name="city" type="search" maxlength="80" placeholder="Enter a city" autocomplete="address-level2" required>
+          <button class="weather-city-submit" id="weather-city-submit" type="submit">Find</button>
+        </form>
         <time id="clock" class="clock" aria-label="Current local time">--:--</time>
       </section>
 
@@ -60,6 +70,10 @@
         <p class="task-error" id="task-error" role="status" aria-live="polite"></p>
         <ul class="task-list" id="task-list" aria-label="Tasks"></ul>
         <p class="empty-state" id="empty-state">A little space for what matters.</p>
+        <blockquote class="daily-quote">
+          <p id="daily-quote-text"></p>
+          <cite id="daily-quote-author">A thought for today</cite>
+        </blockquote>
       </section>
     </main>
 
@@ -75,6 +89,19 @@
         <span>Drop a photo to make it yours</span>
       </div>
     </div>
+    <dialog class="photo-dialog" id="photo-dialog" aria-labelledby="photo-dialog-title">
+      <div class="photo-dialog-heading">
+        <div>
+          <p class="eyebrow">YOUR BACKGROUND</p>
+          <h2 id="photo-dialog-title">Choose a scene</h2>
+        </div>
+        <button class="icon-button" id="close-photo-dialog" type="button" aria-label="Close photo library" title="Close photo library">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m7 7 10 10M17 7 7 17" /></svg>
+        </button>
+      </div>
+      <div class="background-gallery" id="background-gallery" aria-label="Background photo library"></div>
+      <button class="upload-photo-button" id="upload-photo" type="button">Upload your own photo</button>
+    </dialog>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </body>
 </html>
