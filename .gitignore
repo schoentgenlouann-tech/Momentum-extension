@@ -1,0 +1,24 @@
+# Operating system and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Dependencies, caches, and generated output
+node_modules/
+.cache/
+coverage/
+dist/
+build/
+*.log
+*.crx
