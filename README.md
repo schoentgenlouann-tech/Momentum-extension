@@ -1,8 +1,35 @@
 # Stillpoint
 
-Stillpoint is a Chrome New Tab extension built as a small, local-first focus space. It includes a live local clock and greeting, a curated photo library with custom uploads, a personal task list, opt-in local weather, and a daily inspirational quote.
+## Purpose
 
-## Install in Chrome
+Stillpoint replaces Chrome's New Tab page with a quiet, local-first space for checking the time, choosing a daily priority, managing a short task list, and finding inspiration. It also offers a curated photo library and optional local weather.
+
+## Data collection
+
+- The clock and date use the device's local time; they are not sent elsewhere.
+- Tasks, intentions, custom quotes, and selected or uploaded backgrounds are provided by the user and stay in local browser storage.
+- Weather is the only network feature. After the user enables it, the extension sends location coordinates to Open-Meteo to request a forecast. When using city search, the city name is sent to Open-Meteo's search endpoint, then returned coordinates are used for the forecast.
+- Location coordinates and forecast results are not saved. The forecast may refresh in new tabs after location permission has been granted.
+- The extension does not include account, analytics, or advertising features.
+
+## Data persistence
+
+- In the installed extension, tasks, the selected background, the current day's intention, custom quotes, and quote visibility preference use Chrome extension local storage.
+- When previewed outside the extension, the page uses browser local storage as a fallback.
+- Custom backgrounds are resized and compressed before being stored. The bundled photo library and built-in quotes work offline.
+- Weather data is held only for the current page session; weather requests require a network connection.
+
+## User interaction
+
+- Add, complete, reopen, delete, and reorder tasks with the list controls.
+- Set, edit, or clear one intention for the local calendar day.
+- Use **Personalize quotes** to hide or show the daily quote and add or remove custom quotes. Authors are optional.
+- Choose a bundled scene, upload an image, or drop a JPG, PNG, WebP, or GIF onto the page. Reset to restore the default scene.
+- Select **Add local weather** and allow location access, or use city search where available. Weather is provided by Open-Meteo.
+
+## Setup
+
+Stillpoint is a Chrome Manifest V3 extension. It has no package installation or build step.
 
 1. Open `chrome://extensions`.
 2. Turn on **Developer mode**.
@@ -11,15 +38,23 @@ Stillpoint is a Chrome New Tab extension built as a small, local-first focus spa
 
 After editing the extension files, select **Reload** on the Stillpoint tile in `chrome://extensions`.
 
-## Use
+See [PM-doc.md](PM-doc.md) for product decisions, scope, and acceptance criteria.
 
-- Add tasks in the list; select the circle to complete or reopen one, or use its delete control to remove it.
-- Set one intention for the day above the task list. Intentions are saved locally and refresh for the next local calendar day.
-- Use the up and down controls on a task to change its position in the saved list.
-- Open **Personalize quotes** to hide the daily quote or add and remove your own quotes. Custom quotes and this preference are saved locally.
-- Select **Choose a scene** to browse the bundled photo library, upload a photo, or drop a JPG, PNG, WebP, or GIF onto the page. Use the reset control to return to the default scene.
-- Select **Add local weather** and allow location access to show today's forecast. Weather is fetched from Open-Meteo; coordinates are not saved.
-- On desktop, choose **Use a city** to get a forecast without sharing device location. If location access has already been granted, the forecast refreshes automatically in new tabs.
-- Tasks, the selected photo, daily intention, custom quotes, and quote visibility preference are stored locally in the browser through Chrome extension storage. The photo library and quotes work offline; weather needs location access and a network connection.
+## Learning
 
-See [PM-doc.md](PM-doc.md) for the product decisions, scope, and acceptance criteria.
+- Keeping daily state aligned with the user's local calendar means using a local date key rather than relying on a UTC date.
+- Re-rendering a task list can interrupt keyboard navigation, so reordering restores focus and announces the new position.
+- User-selected images can be large; resizing and compression help limit local storage use.
+
+## Limitations and assistance
+
+- Weather depends on network access and the Open-Meteo service. Forecasts are limited to the data requested by the extension.
+- The extension targets Chrome Manifest V3; other browsers have not been verified.
+- There is no automated regression suite. Browser checks were manual, and the extension storage API was not directly verified in an installed extension context.
+- Screen-reader behavior and contrast across every possible uploaded background have not been fully tested.
+- The bundled background image assets do not currently have source attribution documented in this repository.
+- GitHub Copilot in VS Code assisted with implementation and browser checks. No external runtime code libraries or tutorial snippets are included.
+
+## Audit
+
+Maintain a sanitized [AUDIT.md](AUDIT.md) in this repository recording what was checked, issues found, fixes made, and remaining limitations. Do not include secrets or sensitive details.
