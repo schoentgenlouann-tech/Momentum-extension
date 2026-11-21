@@ -4,11 +4,11 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --ink: #f7f4eb;
-  --muted: rgba(247, 244, 235, 0.72);
-  --soft: rgba(247, 244, 235, 0.52);
-  --line: rgba(247, 244, 235, 0.26);
+  --muted: rgba(247, 244, 235, 0.88);
+  --soft: rgba(247, 244, 235, 0.72);
+  --line: rgba(247, 244, 235, 0.38);
   --accent: #d7e5af;
-  --panel: rgba(22, 35, 31, 0.44);
+  --panel: rgba(22, 35, 31, 0.76);
 }
 
 * {
@@ -34,7 +34,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -60,8 +61,8 @@ button {
 
 .shade {
   background:
-    linear-gradient(90deg, rgba(17, 30, 28, 0.44) 0%, rgba(17, 30, 28, 0.16) 52%, rgba(17, 30, 28, 0.32) 100%),
-    linear-gradient(180deg, rgba(15, 25, 24, 0.42) 0%, transparent 27%, transparent 59%, rgba(15, 25, 24, 0.54) 100%);
+    linear-gradient(90deg, rgba(17, 30, 28, 0.62) 0%, rgba(17, 30, 28, 0.46) 52%, rgba(17, 30, 28, 0.54) 100%),
+    linear-gradient(180deg, rgba(15, 25, 24, 0.5) 0%, transparent 27%, transparent 59%, rgba(15, 25, 24, 0.62) 100%);
 }
 
 .topbar,
@@ -352,6 +353,118 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
+.daily-intention {
+  margin-bottom: 16px;
+  padding: 0 0 15px;
+  border-bottom: 1px solid rgba(247, 244, 235, 0.24);
+}
+
+.intention-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.intention-heading-row .eyebrow {
+  margin-bottom: 3px;
+}
+
+.intention-heading-row h3 {
+  margin: 0;
+  font-family: "Iowan Old Style", "Baskerville", "Palatino Linotype", Georgia, serif;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.intention-actions,
+.intention-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.text-button {
+  padding: 5px 0;
+  border: 0;
+  border-bottom: 1px solid rgba(247, 244, 235, 0.54);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.text-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.intention-text {
+  margin: 10px 0 0;
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Baskerville", "Palatino Linotype", Georgia, serif;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.intention-form {
+  margin-top: 11px;
+}
+
+.intention-form input,
+.custom-quote-form input,
+.custom-quote-form textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: rgba(15, 27, 25, 0.72);
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.intention-form input::placeholder,
+.custom-quote-form input::placeholder,
+.custom-quote-form textarea::placeholder {
+  color: var(--muted);
+}
+
+.intention-form-actions {
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.intention-save {
+  min-height: 33px;
+  padding: 0 12px;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  background: rgba(215, 229, 175, 0.14);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.intention-save:hover {
+  background: rgba(215, 229, 175, 0.24);
+}
+
+.intention-error,
+.quote-error {
+  margin: 0;
+  color: #ffd9c2;
+  font-size: 11px;
+}
+
+.intention-error:not(:empty),
+.quote-error:not(:empty) {
+  padding-top: 5px;
+}
+
 .task-form {
   display: flex;
   min-height: 49px;
@@ -371,7 +484,7 @@ button {
 }
 
 .task-form input::placeholder {
-  color: rgba(247, 244, 235, 0.62);
+  color: var(--muted);
 }
 
 .task-form:focus-within {
@@ -474,6 +587,36 @@ button {
   opacity: 0;
 }
 
+.task-reorder {
+  width: 25px;
+  height: 29px;
+  flex: none;
+  border-color: transparent;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0.76;
+}
+
+.task-reorder svg {
+  width: 15px;
+  height: 15px;
+}
+
+.task-reorder:hover,
+.task-reorder:focus-visible {
+  border-color: var(--line);
+  background: rgba(247, 244, 235, 0.12);
+  color: var(--ink);
+  opacity: 1;
+}
+
+.task-reorder:disabled {
+  cursor: not-allowed;
+  opacity: 0.36;
+}
+
 .task-delete svg {
   width: 14px;
   height: 14px;
@@ -517,6 +660,110 @@ button {
   color: var(--muted);
   font-size: 10px;
   font-style: normal;
+}
+
+.quote-settings {
+  margin-top: 11px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.quote-settings summary {
+  width: fit-content;
+  padding: 5px 0;
+  color: var(--muted);
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.quote-settings summary:hover {
+  color: var(--ink);
+}
+
+.quote-settings-content {
+  padding: 11px 0 0;
+}
+
+.quote-visibility {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.quote-visibility input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+}
+
+.quote-help {
+  margin: 7px 0 10px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.custom-quote-form {
+  display: grid;
+  gap: 8px;
+}
+
+.custom-quote-form textarea {
+  min-height: 62px;
+  resize: vertical;
+}
+
+.custom-quote-form .intention-save {
+  justify-self: start;
+}
+
+.custom-quote-empty {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.custom-quote-list {
+  display: grid;
+  gap: 8px;
+  max-height: 160px;
+  margin: 10px 0 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.custom-quote-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(247, 244, 235, 0.18);
+}
+
+.custom-quote-item-text {
+  min-width: 0;
+  color: var(--ink);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.custom-quote-remove {
+  flex: none;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 10px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.custom-quote-remove:hover {
+  color: var(--ink);
 }
 
 .footer-note {
@@ -694,8 +941,9 @@ body.is-dragging .drop-prompt {
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 3px solid #fff;
   outline-offset: 3px;
+  box-shadow: 0 0 0 2px rgba(15, 27, 25, 0.92);
 }
 
 @keyframes rise-in {
@@ -816,6 +1064,10 @@ body.is-dragging .drop-prompt {
     opacity: 1;
   }
 
+  .task-reorder {
+    opacity: 0.9;
+  }
+
   .photo-dialog {
     padding: 19px;
   }
@@ -831,8 +1083,11 @@ body.is-dragging .drop-prompt {
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .backdrop {
+    transform: none;
   }
 }

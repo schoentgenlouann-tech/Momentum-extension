@@ -1,7 +1,7 @@
 # Stillpoint: Product Spec
 
 **Date:** September 30, 2026  
-**Version:** V1.1
+**Version:** V1.2
 **Platform:** Chrome extension (Manifest V3), replacing the New Tab page
 
 ## Product Idea
@@ -18,9 +18,9 @@ Momentum's product idea is to turn the browser's otherwise empty new-tab page in
 4. Local weather forecast in the greeting area.
 5. A new inspirational quote each day below the task list.
 
-## V1 Feature Decisions
+## V1.2 Feature Decisions
 
-V1.1 includes features 1 through 5, while keeping the experience small and local-first. Weather is fetched from Open-Meteo after the user grants browser location access. Photos and quotes need no network connection; selected photos and tasks remain in local extension storage.
+V1.2 includes features 1 through 5, plus a date-scoped daily intention, task reordering, quote customization, and accessibility refinements. Weather is fetched from Open-Meteo after the user grants browser location access. Photos, tasks, intentions, and custom quotes remain in local extension storage; they need no account or network connection.
 
 ## Product Requirements and Acceptance Criteria
 
@@ -57,8 +57,11 @@ V1.1 includes features 1 through 5, while keeping the experience small and local
 - A non-empty submitted task appears in the list without reloading.
 - Tasks can be marked complete and unmarked.
 - Tasks can be deleted individually.
+- Tasks can be moved up or down with keyboard-accessible controls, and the chosen order persists after reopening a tab.
 - The task list survives closing and reopening a new tab.
 - Empty or whitespace-only submissions do not create tasks.
+- A user can set, edit, or clear one intention for the current local calendar day.
+- An intention persists across tabs on the same day and is not shown on the next local calendar day.
 
 ### 4. Local weather
 
@@ -81,6 +84,19 @@ V1.1 includes features 1 through 5, while keeping the experience small and local
 - A quote appears below the task list, including when there are no tasks.
 - The same quote appears for all tabs opened on the same local date, and the selection changes on the next date.
 - Quote selection works offline and does not require an account.
+- Users can add and remove custom quotes, with an optional author, and those quotes join the daily rotation.
+- Users can hide or show the daily quote; that preference persists locally and quote settings remain available while the quote is hidden.
+
+### 6. Accessibility and motion
+
+**Build:** Keep all primary controls keyboard operable, provide visible focus, and respect reduced-motion preferences.
+
+**Acceptance criteria:**
+
+- Interactive controls show a high-contrast visible focus indicator when reached by keyboard.
+- Foreground text remains legible over the background through a stronger image shade and an opaque task panel.
+- Reduced-motion preferences disable entrance, task, and transition animations.
+- Task reordering announces the new position to assistive technology and preserves keyboard focus.
 
 ## Out of Scope for V1
 
@@ -102,8 +118,12 @@ V1.1 includes features 1 through 5, while keeping the experience small and local
 - Exercise the greeting and clock at multiple local times.
 - Select multiple library backgrounds, upload/drop and reload a custom image, reset the background, and reject a non-image file.
 - Add, complete, delete, and reload tasks; reject a blank task.
+- Set an intention, open another tab on the same day, and confirm it is shared; advance the date and confirm it is no longer shown.
+- Reorder tasks with the keyboard and confirm the order persists after reopening a tab.
+- Add and remove a custom quote, toggle quote visibility, and confirm both settings persist locally.
 - Request weather with location allowed and denied; confirm errors leave other features usable.
 - Confirm the quote is stable for a date and changes when the date changes.
+- Confirm visible focus styles and reduced-motion behavior in the browser.
 - Confirm the layout remains usable in a narrow browser window.
 
 ## Longer-Term Direction

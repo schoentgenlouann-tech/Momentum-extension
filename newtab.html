@@ -60,6 +60,28 @@
           </div>
           <span class="task-count" id="task-count" aria-live="polite">0 open</span>
         </div>
+        <section class="daily-intention" aria-labelledby="intention-heading">
+          <div class="intention-heading-row">
+            <div>
+              <p class="eyebrow">YOUR FOCUS FOR TODAY</p>
+              <h3 id="intention-heading">Today's intention</h3>
+            </div>
+            <div class="intention-actions">
+              <button class="text-button" id="edit-intention" type="button">Set intention</button>
+              <button class="text-button" id="clear-intention" type="button" hidden>Clear</button>
+            </div>
+          </div>
+          <p class="intention-text" id="intention-text" hidden></p>
+          <form class="intention-form" id="intention-form" hidden>
+            <label class="visually-hidden" for="intention-input">Today's intention</label>
+            <input id="intention-input" name="intention" type="text" maxlength="120" placeholder="One thing that matters today" autocomplete="off" required>
+            <p class="intention-error" id="intention-error" role="status" aria-live="polite"></p>
+            <div class="intention-form-actions">
+              <button class="text-button" id="cancel-intention" type="button">Cancel</button>
+              <button class="intention-save" type="submit">Save</button>
+            </div>
+          </form>
+        </section>
         <form id="task-form" class="task-form">
           <label class="visually-hidden" for="task-input">Add a task</label>
           <input id="task-input" name="task" type="text" maxlength="120" placeholder="What needs your attention?" autocomplete="off">
@@ -69,11 +91,34 @@
         </form>
         <p class="task-error" id="task-error" role="status" aria-live="polite"></p>
         <ul class="task-list" id="task-list" aria-label="Tasks"></ul>
+        <p class="visually-hidden" id="task-status" role="status" aria-live="polite"></p>
         <p class="empty-state" id="empty-state">A little space for what matters.</p>
-        <blockquote class="daily-quote">
-          <p id="daily-quote-text"></p>
-          <cite id="daily-quote-author">A thought for today</cite>
-        </blockquote>
+        <div class="quote-area" id="quote-area">
+          <blockquote class="daily-quote">
+            <p id="daily-quote-text"></p>
+            <cite id="daily-quote-author">A thought for today</cite>
+          </blockquote>
+        </div>
+        <details class="quote-settings">
+          <summary>Personalize quotes</summary>
+          <div class="quote-settings-content">
+            <label class="quote-visibility">
+              <input id="show-daily-quote" type="checkbox" checked>
+              <span>Show a daily quote</span>
+            </label>
+            <p class="quote-help">Your quotes are saved on this device and join the daily rotation.</p>
+            <form class="custom-quote-form" id="custom-quote-form">
+              <label class="visually-hidden" for="custom-quote-text">Your quote</label>
+              <textarea id="custom-quote-text" name="quote" rows="2" maxlength="240" placeholder="Write or paste a quote" required></textarea>
+              <label class="visually-hidden" for="custom-quote-author">Quote author (optional)</label>
+              <input id="custom-quote-author" name="author" type="text" maxlength="80" placeholder="Author (optional)" autocomplete="off">
+              <button class="intention-save" type="submit">Add quote</button>
+            </form>
+            <p class="quote-error" id="quote-error" role="status" aria-live="polite"></p>
+            <p class="custom-quote-empty" id="custom-quote-empty">No custom quotes yet.</p>
+            <ul class="custom-quote-list" id="custom-quote-list" aria-label="Your custom quotes"></ul>
+          </div>
+        </details>
       </section>
     </main>
 

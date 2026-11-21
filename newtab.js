@@ -5,6 +5,14 @@ const elements = {
   date: document.querySelector("#today-date"),
   dailyQuote: document.querySelector("#daily-quote-text"),
   dailyQuoteAuthor: document.querySelector("#daily-quote-author"),
+  quoteArea: document.querySelector("#quote-area"),
+  showDailyQuote: document.querySelector("#show-daily-quote"),
+  customQuoteForm: document.querySelector("#custom-quote-form"),
+  customQuoteText: document.querySelector("#custom-quote-text"),
+  customQuoteAuthor: document.querySelector("#custom-quote-author"),
+  customQuoteList: document.querySelector("#custom-quote-list"),
+  customQuoteEmpty: document.querySelector("#custom-quote-empty"),
+  quoteError: document.querySelector("#quote-error"),
   emptyState: document.querySelector("#empty-state"),
   greeting: document.querySelector("#greeting"),
   gallery: document.querySelector("#background-gallery"),
@@ -21,16 +29,28 @@ const elements = {
   weatherSummary: document.querySelector("#weather-summary"),
   taskCount: document.querySelector("#task-count"),
   taskError: document.querySelector("#task-error"),
+  taskStatus: document.querySelector("#task-status"),
   taskForm: document.querySelector("#task-form"),
   taskInput: document.querySelector("#task-input"),
   taskList: document.querySelector("#task-list"),
+  intentionForm: document.querySelector("#intention-form"),
+  intentionInput: document.querySelector("#intention-input"),
+  intentionText: document.querySelector("#intention-text"),
+  intentionError: document.querySelector("#intention-error"),
+  editIntention: document.querySelector("#edit-intention"),
+  clearIntention: document.querySelector("#clear-intention"),
+  cancelIntention: document.querySelector("#cancel-intention"),
   toast: document.querySelector("#toast")
 };
 
 let tasks = [];
+let dailyIntention = null;
+let customQuotes = [];
 let toastTimeout;
 let dragDepth = 0;
 let dailyWeather = "";
+let showDailyQuote = true;
+let currentLocalDate = "";
 
 const backgroundOptions = [
   { name: "Wildflower field", path: "assets/default-background.jpg" },
@@ -108,6 +128,10 @@ function removeStoredValue(key) {
   return Promise.resolve();
 }
 
+function getLocalDateKey(date = new Date()) {
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+}
+
 function updateClock() {
   const now = new Date();
   const hour = now.getHours();
@@ -126,17 +150,154 @@ function updateClock() {
     month: "long",
     day: "numeric"
   }).format(now);
+
+  const localDate = getLocalDateKey(now);
+  if (localDate !== currentLocalDate) {
+    currentLocalDate = localDate;
+    renderDailyQuote();
+    renderDailyIntention();
+  }
 }
 
 function renderDailyQuote() {
   const today = new Date();
-  const localDate = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
   const dayNumber = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86_400_000);
-  const quoteIndex = ((dayNumber % dailyQuotes.length) + dailyQuotes.length) % dailyQuotes.length;
-  const quote = dailyQuotes[quoteIndex];
+  const quotes = [...dailyQuotes, ...customQuotes];
+  const quoteIndex = ((dayNumber % quotes.length) + quotes.length) % quotes.length;
+  const quote = quotes[quoteIndex];
   elements.dailyQuote.textContent = quote.text;
   elements.dailyQuoteAuthor.textContent = quote.author || "A thought for today";
-  elements.dailyQuote.dataset.date = localDate;
+  elements.dailyQuote.dataset.date = getLocalDateKey(today);
+  elements.quoteArea.hidden = !showDailyQuote;
+}
+
+function renderDailyIntention() {
+  const text = dailyIntention?.date === getLocalDateKey() ? dailyIntention.text : "";
+  const hasIntention = Boolean(text);
+  elements.intentionText.textContent = text;
+  elements.intentionText.hidden = !hasIntention || !elements.intentionForm.hidden;
+  elements.editIntention.textContent = hasIntention ? "Edit intention" : "Set intention";
+  elements.clearIntention.hidden = !hasIntention || !elements.intentionForm.hidden;
+  if (!hasIntention) elements.intentionInput.value = "";
+}
+
+function editDailyIntention() {
+  const existing = dailyIntention?.date === getLocalDateKey() ? dailyIntention.text : "";
+  elements.intentionInput.value = existing;
+  elements.intentionError.textContent = "";
+  elements.intentionForm.hidden = false;
+  renderDailyIntention();
+  elements.intentionInput.focus();
+}
+
+async function saveDailyIntention(event) {
+  event.preventDefault();
+  const text = elements.intentionInput.value.trim();
+  if (!text) {
+    elements.intentionError.textContent = "Add an intention before saving.";
+    elements.intentionInput.focus();
+    return;
+  }
+
+  const intention = { date: getLocalDateKey(), text };
+  try {
+    await setStoredValues({ dailyIntention: intention });
+    dailyIntention = intention;
+    elements.intentionForm.hidden = true;
+    renderDailyIntention();
+    elements.editIntention.focus();
+  } catch {
+    showToast("Your intention could not be saved.");
+  }
+}
+
+async function clearDailyIntention() {
+  try {
+    await removeStoredValue("dailyIntention");
+    dailyIntention = null;
+    elements.intentionForm.hidden = true;
+    renderDailyIntention();
+    elements.editIntention.focus();
+  } catch {
+    showToast("Your intention could not be cleared.");
+  }
+}
+
+function renderCustomQuotes() {
+  elements.customQuoteList.replaceChildren();
+  elements.customQuoteEmpty.hidden = customQuotes.length > 0;
+
+  for (const quote of customQuotes) {
+    const item = document.createElement("li");
+    item.className = "custom-quote-item";
+
+    const text = document.createElement("span");
+    text.className = "custom-quote-item-text";
+    text.textContent = quote.author ? `${quote.text} — ${quote.author}` : quote.text;
+
+    const remove = document.createElement("button");
+    remove.className = "custom-quote-remove";
+    remove.type = "button";
+    remove.textContent = "Remove";
+    remove.setAttribute("aria-label", `Remove quote: ${quote.text}`);
+    remove.addEventListener("click", () => removeCustomQuote(quote.id));
+
+    item.append(text, remove);
+    elements.customQuoteList.append(item);
+  }
+}
+
+async function addCustomQuote(event) {
+  event.preventDefault();
+  const text = elements.customQuoteText.value.trim();
+  if (!text) {
+    elements.quoteError.textContent = "Enter a quote before adding it.";
+    elements.customQuoteText.focus();
+    return;
+  }
+
+  const quote = {
+    id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    text,
+    author: elements.customQuoteAuthor.value.trim()
+  };
+  const nextQuotes = [...customQuotes, quote];
+  try {
+    await setStoredValues({ customQuotes: nextQuotes });
+    customQuotes = nextQuotes;
+    elements.customQuoteForm.reset();
+    elements.quoteError.textContent = "";
+    renderCustomQuotes();
+    renderDailyQuote();
+    elements.customQuoteText.focus();
+  } catch {
+    showToast("Your quote could not be saved.");
+  }
+}
+
+async function removeCustomQuote(quoteId) {
+  const nextQuotes = customQuotes.filter((quote) => quote.id !== quoteId);
+  try {
+    await setStoredValues({ customQuotes: nextQuotes });
+    customQuotes = nextQuotes;
+    renderCustomQuotes();
+    renderDailyQuote();
+    elements.customQuoteText.focus();
+  } catch {
+    showToast("Your quote could not be removed.");
+  }
+}
+
+async function updateDailyQuoteVisibility() {
+  const nextVisibility = elements.showDailyQuote.checked;
+  try {
+    await setStoredValues({ showDailyQuote: nextVisibility });
+    showDailyQuote = nextVisibility;
+    renderDailyQuote();
+  } catch {
+    elements.showDailyQuote.checked = showDailyQuote;
+    showToast("Your quote preference could not be saved.");
+  }
 }
 
 function renderBackgroundGallery() {
@@ -276,13 +437,13 @@ function showToast(message) {
   }, 3200);
 }
 
-function renderTasks() {
+function renderTasks(focusTarget = null) {
   elements.taskList.replaceChildren();
   const openCount = tasks.filter((task) => !task.completed).length;
   elements.taskCount.textContent = `${openCount} open`;
   elements.emptyState.hidden = tasks.length > 0;
 
-  for (const task of tasks) {
+  for (const [index, task] of tasks.entries()) {
     const row = document.createElement("li");
     row.className = `task-row${task.completed ? " is-complete" : ""}`;
 
@@ -301,6 +462,28 @@ function renderTasks() {
     text.className = "task-text";
     text.textContent = task.text;
 
+    const moveUp = document.createElement("button");
+    moveUp.className = "task-reorder";
+    moveUp.type = "button";
+    moveUp.disabled = index === 0;
+    moveUp.title = "Move task up";
+    moveUp.setAttribute("aria-label", `Move up: ${task.text}`);
+    moveUp.dataset.taskId = task.id;
+    moveUp.dataset.action = "move-up";
+    moveUp.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m6 14 6-6 6 6" /></svg>';
+    moveUp.addEventListener("click", () => moveTask(task.id, -1, "move-up"));
+
+    const moveDown = document.createElement("button");
+    moveDown.className = "task-reorder";
+    moveDown.type = "button";
+    moveDown.disabled = index === tasks.length - 1;
+    moveDown.title = "Move task down";
+    moveDown.setAttribute("aria-label", `Move down: ${task.text}`);
+    moveDown.dataset.taskId = task.id;
+    moveDown.dataset.action = "move-down";
+    moveDown.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m6 10 6 6 6-6" /></svg>';
+    moveDown.addEventListener("click", () => moveTask(task.id, 1, "move-down"));
+
     const remove = document.createElement("button");
     remove.className = "task-delete";
     remove.type = "button";
@@ -313,9 +496,36 @@ function renderTasks() {
       persistTasks();
     });
 
-    row.append(toggle, text, remove);
+    row.append(toggle, text, moveUp, moveDown, remove);
     elements.taskList.append(row);
   }
+
+  if (focusTarget) {
+    const focusAction = nextTaskAction(tasks, focusTarget);
+    const focusButton = Array.from(elements.taskList.querySelectorAll("button[data-task-id]"))
+      .find((button) => button.dataset.taskId === focusTarget.taskId && button.dataset.action === focusAction);
+    focusButton?.focus();
+  }
+}
+
+function nextTaskAction(taskList, focusTarget) {
+  const index = taskList.findIndex((task) => task.id === focusTarget.taskId);
+  if (focusTarget.action === "move-up" && index === 0) return "move-down";
+  if (focusTarget.action === "move-down" && index === taskList.length - 1) return "move-up";
+  return focusTarget.action;
+}
+
+function moveTask(taskId, direction, action) {
+  const index = tasks.findIndex((task) => task.id === taskId);
+  const nextIndex = index + direction;
+  if (index < 0 || nextIndex < 0 || nextIndex >= tasks.length) return;
+
+  const nextTasks = [...tasks];
+  [nextTasks[index], nextTasks[nextIndex]] = [nextTasks[nextIndex], nextTasks[index]];
+  tasks = nextTasks;
+  renderTasks({ taskId, action });
+  elements.taskStatus.textContent = `Moved task to position ${nextIndex + 1} of ${tasks.length}.`;
+  persistTasks();
 }
 
 async function persistTasks() {
@@ -393,6 +603,23 @@ elements.taskForm.addEventListener("submit", (event) => {
 elements.taskInput.addEventListener("input", () => {
   elements.taskError.textContent = "";
 });
+elements.editIntention.addEventListener("click", editDailyIntention);
+elements.clearIntention.addEventListener("click", clearDailyIntention);
+elements.cancelIntention.addEventListener("click", () => {
+  elements.intentionForm.hidden = true;
+  elements.intentionError.textContent = "";
+  renderDailyIntention();
+  elements.editIntention.focus();
+});
+elements.intentionForm.addEventListener("submit", saveDailyIntention);
+elements.intentionInput.addEventListener("input", () => {
+  elements.intentionError.textContent = "";
+});
+elements.showDailyQuote.addEventListener("change", updateDailyQuoteVisibility);
+elements.customQuoteForm.addEventListener("submit", addCustomQuote);
+elements.customQuoteText.addEventListener("input", () => {
+  elements.quoteError.textContent = "";
+});
 
 elements.changePhoto.addEventListener("click", () => elements.photoDialog.showModal());
 elements.closePhotoDialog.addEventListener("click", () => elements.photoDialog.close());
@@ -459,9 +686,36 @@ async function initialize() {
   window.setInterval(updateClock, 1000);
 
   try {
-    const stored = await getStoredValues(["tasks", "customBackground"]);
-    tasks = Array.isArray(stored.tasks) ? stored.tasks.filter((task) => task && typeof task.text === "string") : [];
+    const stored = await getStoredValues(["tasks", "customBackground", "dailyIntention", "customQuotes", "showDailyQuote"]);
+    tasks = Array.isArray(stored.tasks)
+      ? stored.tasks
+        .filter((task) => task && typeof task.text === "string")
+        .map((task, index) => ({
+          ...task,
+          id: typeof task.id === "string" && task.id ? task.id : `stored-${index}-${task.text}`,
+          completed: task.completed === true
+        }))
+      : [];
+    dailyIntention = stored.dailyIntention
+      && stored.dailyIntention.date === getLocalDateKey()
+      && typeof stored.dailyIntention.text === "string"
+      ? stored.dailyIntention
+      : null;
+    customQuotes = Array.isArray(stored.customQuotes)
+      ? stored.customQuotes
+        .filter((quote) => quote && typeof quote.text === "string" && quote.text.trim())
+        .map((quote, index) => ({
+          id: typeof quote.id === "string" && quote.id ? quote.id : `custom-${index}`,
+          text: quote.text.trim(),
+          author: typeof quote.author === "string" ? quote.author.trim() : ""
+        }))
+      : [];
+    showDailyQuote = stored.showDailyQuote !== false;
+    elements.showDailyQuote.checked = showDailyQuote;
     renderTasks();
+    renderCustomQuotes();
+    renderDailyQuote();
+    renderDailyIntention();
     if (typeof stored.customBackground === "string" && (stored.customBackground.startsWith("data:image/") || backgroundOptions.some((option) => option.path === stored.customBackground))) {
       applyBackground(stored.customBackground);
     }
@@ -471,6 +725,9 @@ async function initialize() {
     }
   } catch {
     renderTasks();
+    renderCustomQuotes();
+    renderDailyQuote();
+    renderDailyIntention();
     showToast("Saved items could not be loaded.");
   }
 }
