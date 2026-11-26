@@ -2,6 +2,33 @@
 
 **Review date:** 2026-11-21
 
+## Follow-up Review
+
+**Follow-up date:** 2026-11-26
+**Scope:** This checkout contains the Stillpoint Chrome extension only. The other two projects mentioned in the grading criteria were not available in this repository, so this audit does not claim to cover them.
+
+### Recheck Timeline and Process
+
+- **2026-11-21:** The initial publication audit documented its scope, checks, findings, changes, and limitations above.
+- **2026-11-26:** Rechecked the working tree, tracked project files, root license, dependency manifests, extension permissions and external service, and a narrow set of credential/private-key patterns in tracked text. Re-ran `git diff --check`.
+- **2026-11-26:** Queried the GitHub issue tracker for open issues in `schoentgenlouann-tech/Momentum-extension`; none were listed.
+- **2026-11-26:** Opened `newtab.html` in the browser and rechecked task add/complete/delete, daily intention save/clear, and custom quote add/remove. All passed, with no browser page errors observed. This used the browser's local-storage fallback; it did not verify Chrome extension storage in an installed extension.
+
+### Grading Criteria and Issue Status
+
+| Criterion | Follow-up evidence | Status |
+| --- | --- | --- |
+| Ran an audit on all three projects | This checkout contains one project, Stillpoint. The other two projects were not available here. | Partial; remaining projects not verified |
+| Reviewed findings and explained required action | The findings and required user decisions are recorded under **Needs Further Attention** below. | Recorded |
+| Addressed relevant issues and checked again | Previously added ignore rules and project documentation were rechecked. The core task, intention, and quote flows passed the browser recheck. The repository has no open GitHub issues. | Rechecked; no open tracker issues |
+
+### Follow-up Findings and Actions
+
+- The root `.gitignore` and README documentation changes recorded above are present. The narrow credential-pattern scan returned no matches, the manifest still declares only `storage` and the Open-Meteo host, no package/dependency manifest is tracked, and `git diff --check` passes.
+- No new code defect was identified in the browser flows exercised. The checks were manual and do not replace an automated regression suite or installed-extension storage verification.
+- No GitHub issues were open in this repository at the time of the follow-up query.
+- The author-history, licensing, and image-provenance findings remain unresolved because each requires information or authorization not available in this checkout; see **Needs Further Attention**.
+
 ## Scope and Method
 
 Reviewed repository status, locally reachable Git history, tracked paths, documentation, extension manifest, source references to storage and network services, and bundled image metadata. The publication review was read-only: project code was not executed, and no files or Git history were rewritten. Credential-like values, if any, are not reproduced here.
