@@ -22,6 +22,20 @@
 | Reviewed findings and explained required action | The findings and required user decisions are recorded under **Needs Further Attention** below. | Recorded |
 | Addressed relevant issues and checked again | Previously added ignore rules and project documentation were rechecked. The core task, intention, and quote flows passed the browser recheck. The repository has no open GitHub issues. | Rechecked; no open tracker issues |
 
+### Reviewed Findings and Recommended Actions
+
+| Finding or recommendation | Assessment | Action taken or still needed |
+| --- | --- | --- |
+| Missing ignore rules | **Resolved.** | Added root [`.gitignore`](./.gitignore) for editor/OS files, local configuration and signing material, dependencies, caches, generated files, and logs. `.env.example` remains trackable. Rechecked the file in this follow-up. |
+| README data-handling and setup disclosures | **Resolved.** | Updated [README.md](./README.md) with purpose, data collection and persistence, weather requests, setup, user interactions, and limitations. Rechecked it in this follow-up. |
+| Daily intention, task ordering, quote controls, and related accessibility/usability improvements | **Implemented and rechecked.** | Implemented in [newtab.js](./newtab.js), [newtab.html](./newtab.html), and [styles.css](./styles.css). Follow-up browser checks passed task add/complete/delete, intention save/clear, and custom quote add/remove. |
+| Author email in Git history | **Privacy decision still needed.** The current `main` history has six reachable commits with author addresses at a personal-mail-provider domain; the addresses are not reproduced here. | No history was rewritten. Decide whether to retain the existing metadata; if not, provide the exact GitHub noreply address and explicitly authorize any history rewrite and force-push. Use a private address for future commits. |
+| Missing project-code license | **Open; ownership and reuse rights are unconfirmed.** | No `LICENSE` was added. Confirm the right to license the project and select the license before adding one. |
+| Undocumented provenance and reuse rights for bundled photos | **Open; provenance is not established by the metadata checks.** | Identify the source and license for each image in [`assets/`](./assets), add required attribution, or replace images whose reuse rights cannot be verified. |
+| Automated regression tests and installed-extension storage verification | **Partially checked; recommendation remains open.** Manual browser checks passed using local-storage fallback, but there is no automated suite and Chrome extension storage was not exercised. | Add focused regression tests and verify storage in an installed Chrome extension context. The exercised behavior is implemented in [newtab.js](./newtab.js). |
+| Audit coverage for all three projects | **Not verified.** Only this Stillpoint checkout was available. | The other two projects need to be provided for their audits; no claim is made that they were reviewed here. |
+| Open GitHub issues in this repository | **None found** in the 2026-11-26 query. | No issue-specific code change was applicable. |
+
 ### Follow-up Findings and Actions
 
 - The root `.gitignore` and README documentation changes recorded above are present. The narrow credential-pattern scan returned no matches, the manifest still declares only `storage` and the Open-Meteo host, no package/dependency manifest is tracked, and `git diff --check` passes.
